@@ -1,6 +1,6 @@
 // Import modules
 const fs = require("fs");
-const process = require("process");
+const inquirer = require("inquirer");
 
 // Create a list with the number of occurrences of each attribute value in users
 function createCounterList(users, attribute) {
@@ -19,20 +19,44 @@ function createCounterList(users, attribute) {
     return counterList;
 }
 
-function main() {
+async function main() {
 
     // Load content of users.json
     const rawdata = fs.readFileSync("users.json");
     const users = JSON.parse(rawdata);
 
-    // Take attribute in command argument
-    const attribute = process.argv[2];
+    // Loop until user wants to quit
+    let done = false;
+    // eslint-disable-next-line no-constant-condition
+    while (!done) {
 
-    const counterList = createCounterList(users, attribute);
+        // Display menu
+        await inquirer.prompt({
+            type: "list",
+            name: "attribute",
+            message: "What do you want to show?",
+            choices: ["Company", "Country", new inquirer.Separator(), "Quit"],
+            filter(val) {
+                return val.toLowerCase();
+            }
+        }).then((answers) => {
 
-    // Sort in descending order the list
-    counterList.sort((a, b) => b.counter - a.counter);
-    console.table(counterList);
+            // Quit if Quit is selected
+            if (answers.attribute == "quit") {
+                done = true;
+                return;
+            }
+
+            // Create the counterList of the selected attribute
+            const counterList = createCounterList(users, answers.attribute);
+
+            // Sort in descending order the list
+            counterList.sort((a, b) => b.counter - a.counter);
+
+            // Display the list as a table
+            console.table(counterList);
+        });
+    }
 }
 
 main();
