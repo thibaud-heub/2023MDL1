@@ -2,28 +2,34 @@
 const fs = require("fs");
 const inquirer = require("inquirer");
 
+// Return content of users.json
+function getUsers() {
+    const rawdata = fs.readFileSync("users.json");
+    const users = JSON.parse(rawdata);
+    return users
+}
+
 // Create a list with the number of occurrences of each attribute value in users
-function createCounterList(users, attribute) {
-    const counterList = [];
-    let counterListIndex;
+function createCountList(users, attribute) {
+    const countList = [];
+    let countListIndex;
 
     for (const user of users) {
-        counterListIndex = counterList.findIndex((element) => element[attribute] === user[attribute]);
-        if (counterListIndex === -1) {
-            counterList.push({ [attribute]: user[attribute], counter: 1 }); // Push if not already in the list
+        countListIndex = countList.findIndex((element) => element[attribute] === user[attribute]);
+        if (countListIndex === -1) {
+            countList.push({ [attribute]: user[attribute], count: 1 }); // Push if not already in the list
         } else {
-            counterList[counterListIndex].counter += 1; // Increase counter if already in the list
+            countList[countListIndex].count += 1; // Increase counter if already in the list
         }
     }
 
-    return counterList;
+    return countList;
 }
 
 async function main() {
 
     // Load content of users.json
-    const rawdata = fs.readFileSync("users.json");
-    const users = JSON.parse(rawdata);
+    const users = getUsers();
 
     // Loop until user wants to quit
     let done = false;
@@ -48,13 +54,13 @@ async function main() {
             }
 
             // Create the counterList of the selected attribute
-            const counterList = createCounterList(users, answers.attribute);
+            const countList = createCountList(users, answers.attribute);
 
             // Sort in descending order the list
-            counterList.sort((a, b) => b.counter - a.counter);
+            countList.sort((a, b) => b.count - a.count);
 
             // Display the list as a table
-            console.table(counterList);
+            console.table(countList);
         });
     }
 }
