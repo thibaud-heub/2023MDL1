@@ -3,6 +3,7 @@
     "eslint": "^8.35.0"
   },
   "dependencies": {
+    "chalk": "^4.0.0",
     "inquirer": "^8.0.0"
   }
 }
